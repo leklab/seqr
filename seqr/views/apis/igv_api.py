@@ -15,6 +15,9 @@ from seqr.views.utils.orm_to_json_utils import get_json_for_sample
 from seqr.views.utils.permissions_utils import get_project_and_check_permissions, check_project_permissions, \
     login_and_policies_required, pm_or_data_manager_required
 
+from seqr.utils.logging_utils import SeqrLogger
+logger = SeqrLogger(__name__)
+
 GS_STORAGE_ACCESS_CACHE_KEY = 'gs_storage_access_cache_entry'
 
 
@@ -196,6 +199,16 @@ def _stream_file(request, path):
             file_iter(path, byte_range=(first_byte, last_byte), raw_content=True, user=request.user), status=206, content_type=content_type)
         resp['Content-Length'] = str(length)
         resp['Content-Range'] = 'bytes %s-%s' % (first_byte, last_byte)
+
+    elif path.endswith('.bam') or path.endswith('.cram'):
+        logger.info("BAM file without a range_header in request return block 65536",user=None)
+        default_block_len = 65536
+
+        resp = StreamingHttpResponse(
+            file_iter(path, byte_range=(0, default_block_len-1)), status=206, content_type=content_type)
+        resp['Content-Length'] = default_block_len
+        resp['Content-Range'] = 'bytes 0-%s' % (default_block_len-1)
+
     else:
         resp = StreamingHttpResponse(file_iter(path, raw_content=True, user=request.user), content_type=content_type)
     resp['Accept-Ranges'] = 'bytes'

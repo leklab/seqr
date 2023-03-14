@@ -72,7 +72,7 @@ const getIgvTracks = (igvSampleIndividuals, sortedIndividuals, sampleTypes) => {
 
         if (type === ALIGNMENT_TYPE) {
           if (sample.filePath.endsWith('.cram')) {
-            if (sample.filePath.startsWith('gs://')) {
+            if (sample.filePath.startsWith('gs://') || sample.filePath.startsWith('s3://')) {
               Object.assign(track, {
                 format: 'cram',
                 indexURL: `${track.url}.crai`,

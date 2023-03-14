@@ -16,6 +16,7 @@ export const forgotPassword = values => () => new HttpRequestHelper(
   () => {},
 ).post(values)
 
+/*
 export const setPassword = values => () => new HttpRequestHelper(
   `/api/users/${values.username}/set_password`,
   () => {
@@ -23,6 +24,18 @@ export const setPassword = values => () => new HttpRequestHelper(
     window.location.href = window.location.origin
   },
 ).post(values)
+*/
+
+export const setPassword = (values) => {
+  return () => {
+    return new HttpRequestHelper(`/api/users/${values.username}/set_password`,
+      () => {
+        // Redirect to home page
+        window.location.href = window.location.origin
+      },
+    ).post(values)
+  }
+}
 
 export const updateUserPolicies = values => () => new HttpRequestHelper(
   '/api/users/update_policies', redirectNext,

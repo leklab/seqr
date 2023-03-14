@@ -16,5 +16,7 @@ deploy/*.tar.gz
 
 pedigree_images/*
 seqr_settings
+static/*
+ui/dist/*
 
 django_key
