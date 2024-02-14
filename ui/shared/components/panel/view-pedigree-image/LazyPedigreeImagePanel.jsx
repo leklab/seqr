@@ -109,6 +109,7 @@ class BasePedigreeImage extends React.PureComponent {
   }
 
   componentDidMount() {
+    console.log('In componentDidMount')
     const { family } = this.props
     if (!family.pedigreeImage) {
       this.drawPedigree()
@@ -116,6 +117,7 @@ class BasePedigreeImage extends React.PureComponent {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    console.log('In componentDidUpdate')
     const { family, individuals } = this.props
     const { imgSrc, pedigreeOpts } = this.state
     if (!family.pedigreeImage) { // If has an uploaded pedigree image, that is displayed so no need to draw
@@ -144,6 +146,7 @@ class BasePedigreeImage extends React.PureComponent {
   }
 
   redrawPedigree = (opts, dataset) => {
+    console.log('In redrawPedigree')
     opts.dataset = copyPedigreeDataset(this.yobToAge(dataset || opts.dataset)) // eslint-disable-line no-param-reassign
     try {
       validatePedigree(opts)
@@ -172,8 +175,13 @@ class BasePedigreeImage extends React.PureComponent {
   }
 
   getFamilyDataset = () => {
+    console.log('In getFamilyDataset')
     const { family, individuals } = this.props
-    const dataset = family.pedigreeDataset || (individuals || []).map(
+    console.log(family)
+    console.log(individuals)
+
+    // const dataset = family.pedigreeDataset || (individuals || []).map(
+    const dataset = (individuals || []).map(
       individual => Object.entries(INDIVIDUAL_FIELD_MAP).reduce((acc, [key, mappedKey]) => {
         let val = individual[mappedKey]
         if (key === 'affected') {
@@ -228,11 +236,13 @@ class BasePedigreeImage extends React.PureComponent {
   }
 
   getPedigreeDataset = () => {
+    console.log('In getPedigreeDataset')
     const { pedigreeOpts } = this.state
     return currentDataset(pedigreeOpts)
   }
 
   drawPedigree() {
+    console.log('In drawPedigree')
     const dataset = this.getFamilyDataset()
     const opts = {
       dataset: this.getFamilyDataset(),

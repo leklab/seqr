@@ -37,8 +37,11 @@ class EsSearch(object):
 
         self.samples_by_family_index = defaultdict(lambda: defaultdict(dict))
         samples = Sample.objects.filter(is_active=True, individual__family__in=families, elasticsearch_index__isnull=False)
+        #es_hack = 'beggs_17_myopathies'
+
         for s in samples.select_related('individual__family'):
             self.samples_by_family_index[s.elasticsearch_index][s.individual.family.guid][s.sample_id] = s
+            #self.samples_by_family_index[es_hack][s.individual.family.guid][s.sample_id] = s
 
         if len(self.samples_by_family_index) < 1:
             raise InvalidSearchException('No es index found for families {}'.format(

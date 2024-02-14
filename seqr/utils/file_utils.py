@@ -46,6 +46,26 @@ def parse_s3_path(s3path):
         "filename" : filename
     }
 
+#Need cross AWS account access
+def create_s3_session():
+    sts_client = boto3.client('sts')
+    #hard-coded so can fix
+    assumed_role_object = sts_client.assume_role(
+        RoleArn='arn:aws:iam::905042445333:role/assumerole_by_seqr_account',
+        RoleSessionName='seqr'
+    )
+
+    #print(assumed_role_object)
+    credentials = assumed_role_object['Credentials']
+
+    session = boto3.Session(
+        aws_access_key_id=credentials['AccessKeyId'],
+        aws_secret_access_key=credentials['SecretAccessKey'],
+        aws_session_token=credentials['SessionToken']
+    )
+
+    return session
+
 def get_google_project(gs_path):
     return 'anvil-datastorage' if gs_path.startswith('gs://fc-secure') else None
 
@@ -58,7 +78,8 @@ def does_file_exist(file_path, user=None):
             logger.info(' '.join(errors), user)
         return success
     elif _is_s3_file_path(file_path):
-        s3_client = boto3.client('s3')
+        #s3_client = boto3.client('s3')
+        s3_client = create_s3_session().client('s3')
         parts = parse_s3_path(file_path)
         response = s3_client.list_objects(
             Bucket = parts['bucket'],
@@ -105,7 +126,10 @@ def _google_bucket_file_iter(gs_path, byte_range=None, raw_content=False, user=N
 
 def _s3_file_iter(file_path, byte_range = None):
     logger.info("Iterating over s3 path: " + file_path,user=None)
-    client = boto3.client('s3')
+
+    #client = boto3.client('s3')
+    client = create_s3_session().client('s3')
+
     range_arg = f"bytes={byte_range[0]}-{byte_range[1]}" if byte_range else ''
     logger.info("Byte range for s3: " + range_arg, user=None)
     parts = parse_s3_path(file_path)

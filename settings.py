@@ -338,9 +338,9 @@ REDIS_SERVICE_HOSTNAME = os.environ.get('REDIS_SERVICE_HOSTNAME', 'localhost')
 REDIS_SERVICE_PORT = int(os.environ.get('REDIS_SERVICE_PORT', '6379'))
 
 # Matchmaker
-MME_DEFAULT_CONTACT_NAME = 'Samantha Baxter'
-MME_DEFAULT_CONTACT_INSTITUTION = 'Broad Center for Mendelian Genomics'
-MME_DEFAULT_CONTACT_EMAIL = 'matchmaker@broadinstitute.org'
+MME_DEFAULT_CONTACT_NAME = 'Shira Rockowitz'
+MME_DEFAULT_CONTACT_INSTITUTION = 'Boston Childrens Hospital'
+MME_DEFAULT_CONTACT_EMAIL = 'bch_seqr_mme-dl@childrens.harvard.edu'
 MME_DEFAULT_CONTACT_HREF = 'mailto:{}'.format(MME_DEFAULT_CONTACT_EMAIL)
 
 MME_CONFIG_DIR = os.environ.get('MME_CONFIG_DIR', '')

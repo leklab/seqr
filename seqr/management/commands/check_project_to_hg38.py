@@ -37,6 +37,7 @@ class Command(BaseCommand):
         sample_ids, sample_type = validate_index_metadata_and_get_elasticsearch_index_samples(
             elasticsearch_index, genome_version=GENOME_VERSION_GRCh38)
 
+        '''
         samples, included_families, _, _ = match_sample_ids_to_sample_records(
             projects=[project],
             user=None,
@@ -45,20 +46,23 @@ class Command(BaseCommand):
             sample_type=sample_type,
             raise_unmatched_error_template='Matches not found for ES sample ids: {sample_ids}.'
         )
+        '''
 
         # Get expected saved variants
         saved_variant_models_by_guid = {v.guid: v for v in SavedVariant.objects.filter(family__project=project)}
         expected_families = {sv.family for sv in saved_variant_models_by_guid.values()}
 
+        '''
         missing_families = expected_families - included_families
         if missing_families:
             raise CommandError(
                 'The following families have saved variants but are missing from the callset: {}.'.format(
                     ', '.join([f.family_id for f in missing_families])
                 ))
+        '''
 
         # Lift-over saved variants
-        update_variant_samples(samples, None, elasticsearch_index)
+        #update_variant_samples(samples, None, elasticsearch_index)
         saved_variants = get_json_for_saved_variants(list(saved_variant_models_by_guid.values()), add_details=True)
         saved_variants_to_lift, hg37_to_hg38_xpos, lift_failed = _get_variants_to_lift(saved_variants)
 
@@ -79,13 +83,15 @@ class Command(BaseCommand):
         logger.info('Successfully updated {} variants'.format(len(es_variants)))
 
         # Update project and sample data
-        update_model_from_json(project, {'genome_version': GENOME_VERSION_GRCh38}, None)
+        #update_model_from_json(project, {'genome_version': GENOME_VERSION_GRCh38}, None)
 
         reset_cached_search_results(project)
 
         logger.info('---Done---')
+        '''
         logger.info('Succesfully lifted over {} variants. Skipped {} failed variants. Family data not updated for {} variants'.format(
             len(es_variants), len(missing_variants) + len(lift_failed), missing_family_count))
+        '''
 
         
 
@@ -134,9 +140,12 @@ def _validate_missing_variants(es_variants, saved_variants_map):
                     tags=', '.join([tag.variant_tag_type.name for tag in tags]) if tags else 'No Tags; {}'.format(
                         '; '.join([note.note for note in notes]))
                 ))
+        '''
         if input('Unable to find the following {} variants in the index. Continue with update (y/n)?:\n{}\n'.format(
                 len(missing_variants), '\n'.join(missing_variant_strings))) != 'y':
             raise CommandError('Error: unable to find {} lifted-over variants'.format(len(missing_variants)))
+        '''
+
     return missing_variants
 
 def _update_saved_variants(es_variants, saved_variants_map):
@@ -146,6 +155,7 @@ def _update_saved_variants(es_variants, saved_variants_map):
         missing_saved_variants = [v for v in saved_variant_models if v.family.guid not in var['familyGuids']]
         if missing_saved_variants:
             variant_id = '{}-{}-{}-{}'.format(var['chrom'], var['pos'], var['ref'], var['alt'])
+            '''
             if input(('Variant {} (hg37: {}) not find for expected families {}. Continue with update (y/n)? '.format(
                 variant_id, missing_saved_variants[0].xpos,
                 ', '.join(['{} ({})'.format(v.family.guid, v.guid) for v in missing_saved_variants]))
@@ -154,6 +164,7 @@ def _update_saved_variants(es_variants, saved_variants_map):
                 missing_family_count += len(missing_saved_variants)
             else:
                 raise CommandError('Error: unable to find family data for lifted over variant')
+            '''
         for saved_variant in saved_variant_models:
             saved_variant.xpos = var['xpos']
             saved_variant.saved_variant_json = var
